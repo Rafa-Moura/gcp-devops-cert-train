@@ -2,6 +2,7 @@
 steps:
   - name: "gcr.io/cloud-builders/mvn"
     args: ["clean", "install"]
+    dir: "back-end"
 
   - name: "gcr.io/cloud-builders/gcloud"
-    args: ["app", "deploy"]
+    args: ["app", "deploy", "back-end/app.yaml"]
