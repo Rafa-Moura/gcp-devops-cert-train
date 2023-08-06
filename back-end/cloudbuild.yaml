@@ -1,6 +1,7 @@
 ## Deploy application to App Engine
 steps:
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: 'bash'
-  args: ['-c', 'gcloud config set app/cloud_build_timeout 1600 && gcloud app deploy app.yaml --version v1']
-timeout: '1600s'
+  - name: "gcr.io/cloud-builders/mvn"
+    args: ["clean", "install"]
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    args: ["app", "deploy"]
