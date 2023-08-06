@@ -1,6 +1,7 @@
 create table tb_estoque(
-	id SERIAL primary key not null,
+	id bigint primary key auto_increment not null,
 	codigo_produto varchar(10) not null,
+	produto varchar(100) not null,
 	quantidade int not null,
 	valor numeric(19,5) not null,
 	usuario_cadastro varchar(50) not null,

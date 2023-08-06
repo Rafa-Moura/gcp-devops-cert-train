@@ -1,15 +1,12 @@
 spring:
-  jpa:
-    database: POSTGRESQL
-    show-sql: true
-    hibernate:
-      ddl-auto: update
   datasource:
-    platform: postgres
-    url: jdbc:postgresql://localhost:5432/estoque_api
-    username: postgres
-    password: 123456
-    driverClassName: org.postgresql.Driver
-  flyway:
-    locations: classpath:db/migration
-    baselineOnMigrate: 'true'
+    url: jdbc:h2:mem:mydb
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
