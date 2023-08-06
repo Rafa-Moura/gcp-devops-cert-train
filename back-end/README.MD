@@ -37,9 +37,9 @@ spring:
 ```
 2. Navegue até o diretório do projeto:
 ```
-- cd gcp-devops-cert-train
+- cd gcp-devops-cert-train\back-end
 ```
 3. Compile e execute o projeto usando o Maven:
 ```
-- mvn spring-boot:run
+- mvn clean install spring-boot:run
 ```
