@@ -11,10 +11,13 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @RestControllerAdvice
 @Slf4j
@@ -24,56 +27,56 @@ public class GlobalExceptionHandler {
     private Environment environment;
 
     @ExceptionHandler({Throwable.class})
-    public ResponseEntity<StandardError> handleThrowable(final Throwable throwable) {
+    public ResponseEntity<StandardException> handleThrowable(final Throwable throwable) {
 
-        StandardError standardError = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+        StandardException standardException = new StandardException(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
                 INTERNAL_SERVER_ERROR_MESSAGE, throwable);
 
-        standardError.setTimestamp(LocalDateTime.now());
+        standardException.setTimestamp(LocalDateTime.now());
 
-        log.error(standardError.getMessage(), standardError);
+        log.error(standardException.getMessage(), standardException);
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(standardError);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(standardException);
     }
 
     @ExceptionHandler({InvalidRequestException.class})
-    public ResponseEntity<StandardError> handleGlobalException(final InvalidRequestException invalidRequestException) {
+    public ResponseEntity<StandardException> handleGlobalException(final InvalidRequestException invalidRequestException) {
 
-        StandardError standardError = new StandardError(invalidRequestException.getReason(),
+        StandardException standardException = new StandardException(invalidRequestException.getReason(),
                 invalidRequestException.getMessage(), invalidRequestException.getCause());
 
-        standardError.setTimestamp(LocalDateTime.now());
+        standardException.setTimestamp(LocalDateTime.now());
 
         log.error(invalidRequestException.getMessage(), invalidRequestException);
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(standardError);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(standardException);
     }
 
     @ExceptionHandler({NotFoundException.class})
-    public ResponseEntity<StandardError> handleGlobalNotFoundException(final NotFoundException notFoundException) {
+    public ResponseEntity<StandardException> handleGlobalNotFoundException(final NotFoundException notFoundException) {
 
-        StandardError standardError = new StandardError(notFoundException.getReason(),
+        StandardException standardException = new StandardException(notFoundException.getReason(),
                 notFoundException.getMessage(), notFoundException.getCause());
 
-        standardError.setTimestamp(LocalDateTime.now());
+        standardException.setTimestamp(LocalDateTime.now());
 
         log.error(notFoundException.getMessage(), notFoundException);
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(standardError);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(standardException);
     }
 
     @ExceptionHandler({HttpMessageNotReadableException.class})
-    public ResponseEntity<StandardError> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
+    public ResponseEntity<StandardException> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
 
-        StandardError standardError = new StandardError(HttpStatus.BAD_REQUEST.toString(), REQUEST_JSON_INVALID_ERROR_MESSAGE, exception.getCause());
+        StandardException standardException = new StandardException(HttpStatus.BAD_REQUEST.toString(), REQUEST_JSON_INVALID_ERROR_MESSAGE, exception.getCause());
 
-        standardError.setTimestamp(LocalDateTime.now());
+        standardException.setTimestamp(LocalDateTime.now());
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(standardError);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(standardException);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResponseEntity<StandardError> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception){
+    public ResponseEntity<StandardException> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception){
 
         List<String> errors = new ArrayList<>();
 
@@ -84,12 +87,27 @@ public class GlobalExceptionHandler {
             errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
         }
 
-        StandardError standardError = new StandardError(HttpStatus.BAD_REQUEST.toString(),
+        StandardException standardException = new StandardException(HttpStatus.BAD_REQUEST.toString(),
                 errors.toString().replace("[", "").replace("]", ""), exception.getCause());
 
-        standardError.setTimestamp(LocalDateTime.now());
+        standardException.setTimestamp(LocalDateTime.now());
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(standardError);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(standardException);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<StandardException> handleEnumValidationException(MethodArgumentTypeMismatchException ex) {
+        StandardException standardException = new StandardException(HttpStatus.BAD_REQUEST.toString(), ex.getMessage(), ex.getCause());
+        standardException.setTimestamp(LocalDateTime.now());
+
+        if (Objects.requireNonNull(ex.getRequiredType()).isEnum()) {
+            String errorMessage = "Valor inválido para o status. Favor utilizar um dos seguintes valores: " + Arrays.toString(ex.getRequiredType().getEnumConstants());
+            standardException = new StandardException(HttpStatus.BAD_REQUEST.toString(), errorMessage, ex.getCause());
+            standardException.setTimestamp(LocalDateTime.now());
+            return ResponseEntity.badRequest().body(standardException);
+        }
+
+         return ResponseEntity.badRequest().body(standardException);
     }
 
     @Autowired

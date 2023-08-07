@@ -1,6 +1,6 @@
 package br.com.stockapi.controller.exception;
 
-public class NotFoundException extends StandardError {
+public class NotFoundException extends StandardException {
 
     public NotFoundException(String reason, String message, Throwable throwable) {
         super(reason, message, throwable);

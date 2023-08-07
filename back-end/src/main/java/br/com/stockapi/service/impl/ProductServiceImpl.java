@@ -1,6 +1,8 @@
 package br.com.stockapi.service.impl;
 
 import br.com.stockapi.controller.dto.request.ProductRequestDto;
+import br.com.stockapi.controller.dto.response.PageableResponseDto;
+import br.com.stockapi.controller.dto.response.ProductResponseDto;
 import br.com.stockapi.controller.exception.NotFoundException;
 import br.com.stockapi.infrastructure.enums.StatusItemEnum;
 import br.com.stockapi.infrastructure.model.Product;
@@ -14,6 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import static br.com.stockapi.service.mapper.ProductServiceMapper.convertPageProductToPageableResponseDto;
+import static br.com.stockapi.service.mapper.ProductServiceMapper.convertProductToDto;
 
 @Slf4j
 @Service
@@ -30,8 +35,15 @@ public class ProductServiceImpl implements ProductService {
 
         StatusProduct statusProduct = statusItemService.getStatusItem(StatusItemEnum.IN_STOCK);
 
-        Product product = ProductServiceMapper.convertDtoToEntity(productRequestDto, statusProduct);
+        boolean isNewProduct = productRepository.findByProduct(productRequestDto.getProduct()).isEmpty();
 
+        Product product;
+        if(isNewProduct){
+            product = ProductServiceMapper.convertDtoToEntity(productRequestDto, statusProduct);
+        }else {
+            product = productRepository.findByProduct(productRequestDto.getProduct()).get();
+            product.setQuantity(product.getQuantity() + productRequestDto.getQuantity());
+        }
         productRepository.save(product);
 
         log.info("Finalizando processo para inserir novo item no estoque: Item [{}] | Código gerado: [{}]", productRequestDto.getProduct(), product.getItemCode());
@@ -39,23 +51,32 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> getAllProducts(Pageable pageable) {
+    public PageableResponseDto getAllProducts(Pageable pageable, StatusItemEnum statusItemEnum) {
 
-        return productRepository.findAll(pageable);
+        StatusProduct statusProduct = statusItemService.getStatusItem(statusItemEnum);
+
+        Page<Product> products = productRepository.findAllByStatusProduct(pageable, statusProduct);
+
+        return convertPageProductToPageableResponseDto(products);
     }
 
     @Override
-    public Product getProdutcByCode(String code) throws NotFoundException {
+    public ProductResponseDto getProdutcByCode(String code) throws NotFoundException {
 
-        return productRepository.findByItemCode(code).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.toString(),
+        Product product =  productRepository.findByItemCode(code).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.toString(),
                 "Ops, não localizamos um produto com o código informado. Verifique o código e tente novamente."
         ));
+
+        return convertProductToDto(product);
     }
 
     @Override
     public void deleteProduct(String code) throws NotFoundException {
 
-        Product product = getProdutcByCode(code);
+        Product product = productRepository.findByItemCode(code).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.toString(),
+                "Ops, não localizamos um produto com o código informado. Verifique o código e tente novamente."
+        ));
+
         StatusProduct statusProduct = statusItemService.getStatusItem(StatusItemEnum.REMOVED_STOCK);
 
         product.setStatusProduct(statusProduct);
