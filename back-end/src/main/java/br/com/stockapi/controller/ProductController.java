@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "stock-api")
+@CrossOrigin("*")
 public class ProductController {
 
     private final ProductService service;
