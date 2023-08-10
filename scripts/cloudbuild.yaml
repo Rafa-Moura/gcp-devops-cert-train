@@ -1,0 +1,14 @@
+## Deploy application to App Engine
+steps:
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  dir: "scripts"
+  args:
+  - gclouds
+  - functions
+  - deploy
+  - health-check-estoque-app
+  - --region=us-central-1
+  - --source=.
+  - --trigger-http
+  - --runtime=nodejs20
+  - --gen2
