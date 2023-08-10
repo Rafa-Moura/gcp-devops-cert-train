@@ -16,7 +16,7 @@ steps:
 - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
   entrypoint: gcloud
   dir: "back-end"
-  args: ['run', 'deploy', 'estoque-api', '--image', 'gcr.io/gcp-devops-cert-train/us-central1-docker.pkg.dev/gcp-devops-cert-train/apps-registry/estoque-api:v1', '--region', 'us-central-1']
+  args: ['run', 'deploy', 'estoque-api', '--image', 'us-central1-docker.pkg.dev/gcp-devops-cert-train/apps-registry/estoque-api:v1', '--region', 'us-central-1']
 
 
 ## Deploy application to App Engine  
