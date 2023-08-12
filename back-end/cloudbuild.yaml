@@ -4,9 +4,17 @@ steps:
   args: ["clean", "install"]
   dir: "back-end"
 
+- name: 'ubuntu'
+  args: ['bash', './myscript.sh']
+  env:
+  - 'BUILD=$BUILD_ID'
+
+
 - name: "gcr.io/cloud-builders/docker"
   dir: "back-end"
-  args: ['build', '--build-arg', 'JAR_FILE=target/*.jar', '-t', 'us-central1-docker.pkg.dev/gcp-devops-cert-train/apps-registry/estoque-api:v1', '.']
+  args: ['build', '--build-arg', 'JAR_FILE=target/*.jar', '-t', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/${_REGISTRY}/${_IMAGE_NAME}:$BUILD_ID', '.']
+  
+  # args: ['build', '--build-arg', 'JAR_FILE=target/*.jar', '-t', 'us-central1-docker.pkg.dev/gcp-devops-cert-train/apps-registry/estoque-api:v1', '.']
 
 # Push the container image to Container Registry
 - name: "gcr.io/cloud-builders/docker"
@@ -22,4 +30,10 @@ steps:
 ## Deploy application to App Engine  
 # - name: "gcr.io/cloud-builders/gcloud"
 #   args: ["app", "deploy", "back-end/app.yaml"]
+
+substitutions:
+  _PROJECT_ID: gcp-devops-cert-train
+  _REGISTRY: apps-registry
+  _IMAGE_NAME: estoque-api
+
 images: ['us-central1-docker.pkg.dev/gcp-devops-cert-train/apps-registry/estoque-api:v1']
