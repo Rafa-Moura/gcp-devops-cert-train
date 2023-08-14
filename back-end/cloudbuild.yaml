@@ -9,17 +9,15 @@ steps:
   dir: "back-end"
   args: ['build', '--build-arg', 'JAR_FILE=target/*.jar', '-t', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/${_REGISTRY}/${_IMAGE_NAME}:$BUILD_ID', '.']
   
-  # args: ['build', '--build-arg', 'JAR_FILE=target/*.jar', '-t', 'us-central1-docker.pkg.dev/gcp-devops-cert-train/apps-registry/estoque-api:v1', '.']
-
 # Push the container image to Container Registry
 - name: "gcr.io/cloud-builders/docker"
-  args: ['push', 'us-central1-docker.pkg.dev/gcp-devops-cert-train/apps-registry/estoque-api:v1']
+  args: ['push', ''us-central1-docker.pkg.dev/${_PROJECT_ID}/${_REGISTRY}/${_IMAGE_NAME}:$BUILD_ID'']
 
 # Deploy container image to Cloud Run
 - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
   entrypoint: gcloud
   dir: "back-end"
-  args: ['run', 'deploy', 'estoque-api', '--image', 'us-central1-docker.pkg.dev/gcp-devops-cert-train/apps-registry/estoque-api:v1', '--region', 'us-central1']
+  args: ['run', 'deploy', 'estoque-api', '--image', ''us-central1-docker.pkg.dev/${_PROJECT_ID}/${_REGISTRY}/${_IMAGE_NAME}:$BUILD_ID'', '--region', 'us-central1']
 
 
 ## Deploy application to App Engine  
