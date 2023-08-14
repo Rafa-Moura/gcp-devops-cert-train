@@ -4,11 +4,6 @@ steps:
   args: ["clean", "install"]
   dir: "back-end"
 
-- name: 'ubuntu'
-  args: ['bash', './myscript.sh']
-  env:
-  - 'BUILD=$BUILD_ID'
-
 
 - name: "gcr.io/cloud-builders/docker"
   dir: "back-end"
