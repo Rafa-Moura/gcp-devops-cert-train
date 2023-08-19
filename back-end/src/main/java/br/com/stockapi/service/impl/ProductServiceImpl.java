@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
     private final StatusProductServiceImpl statusItemService;
 
     @Override
-    public void insertItem(ProductRequestDto productRequestDto) {
+    public void insertItem(ProductRequestDto productRequestDto) throws NotFoundException {
         log.info("Iniciando processo para inserir novo item no estoque: Item [{}]", productRequestDto.getProduct());
 
         StatusProduct statusProduct = statusItemService.getStatusItem(StatusItemEnum.IN_STOCK);
@@ -51,11 +51,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PageableResponseDto getAllProducts(Pageable pageable, StatusItemEnum statusItemEnum) {
+    public PageableResponseDto getAllProducts(Pageable pageable, StatusItemEnum statusItemEnum) throws NotFoundException {
 
         StatusProduct statusProduct = statusItemService.getStatusItem(statusItemEnum);
 
-        Page<Product> products = productRepository.findAllByStatusProduct(pageable, statusProduct);
+        Page<Product> products;
+
+        if(statusProduct == null){
+            products = productRepository.findAll(pageable);
+            return convertPageProductToPageableResponseDto(products);
+        }
+
+        products = productRepository.findAllByStatusProduct(pageable, statusProduct);
 
         return convertPageProductToPageableResponseDto(products);
     }

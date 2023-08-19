@@ -49,7 +49,7 @@ public class ProductController {
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = SystemException.class))}
             ),
     })
-    public void insertItem(@RequestBody @Valid ProductRequestDto productRequestDto) {
+    public void insertItem(@RequestBody @Valid ProductRequestDto productRequestDto) throws NotFoundException {
 
         log.info("Iniciando controller de inserção de novo item no estoque. Item: [{}]", productRequestDto.getProduct());
 
@@ -72,13 +72,13 @@ public class ProductController {
     @PageableAsQueryParam
     public ResponseEntity<PageableResponseDto> getAllProducts(@ParameterObject Pageable pageable,
                                                               @Parameter(name = "status", schema = @Schema(implementation = StatusItemEnum.class))
-                                                              @PathParam(value = "status") StatusItemEnum status) {
+                                                              @RequestParam(required = false, value = "status") StatusItemEnum status) throws NotFoundException {
 
         log.info("Iniciando controller de listagem de produtos");
 
         PageableResponseDto pageableResponseDto = service.getAllProducts(pageable, status);
 
-        log.info("Finalizando controller de listagem de produtos");
+        log.info("Finalizando controller de listagem de produtos. Total de itens encontrados com os parâmetros informados: [{}]", pageableResponseDto.getTotalElements());
 
         return new ResponseEntity<>(pageableResponseDto, HttpStatus.OK);
     }

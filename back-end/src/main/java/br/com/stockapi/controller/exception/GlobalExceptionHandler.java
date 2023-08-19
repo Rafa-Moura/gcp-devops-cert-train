@@ -24,6 +24,7 @@ import java.util.Objects;
 public class GlobalExceptionHandler {
     private static final String INTERNAL_SERVER_ERROR_MESSAGE = "Ocorreu um erro interno, tente novamente mais tarde ou contate um administrador";
     private static final String REQUEST_JSON_INVALID_ERROR_MESSAGE = "JSON mal formado. Verifique as informações fornecidas e tente novamente";
+    public static final String REQUEST_ERROR = "Erro na requisição: Motivo: [{}]";
     private Environment environment;
 
     @ExceptionHandler({Throwable.class})
@@ -33,7 +34,6 @@ public class GlobalExceptionHandler {
                 INTERNAL_SERVER_ERROR_MESSAGE, throwable);
 
         standardException.setTimestamp(LocalDateTime.now());
-
         log.error(standardException.getMessage(), standardException);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(standardException);
@@ -72,6 +72,7 @@ public class GlobalExceptionHandler {
 
         standardException.setTimestamp(LocalDateTime.now());
 
+        log.error(standardException.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(standardException);
     }
 
@@ -92,6 +93,7 @@ public class GlobalExceptionHandler {
 
         standardException.setTimestamp(LocalDateTime.now());
 
+        log.error(REQUEST_ERROR, standardException.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(standardException);
     }
 
@@ -104,9 +106,11 @@ public class GlobalExceptionHandler {
             String errorMessage = "Valor inválido para o status. Favor utilizar um dos seguintes valores: " + Arrays.toString(ex.getRequiredType().getEnumConstants());
             standardException = new StandardException(HttpStatus.BAD_REQUEST.toString(), errorMessage, ex.getCause());
             standardException.setTimestamp(LocalDateTime.now());
+            log.error(REQUEST_ERROR, standardException.getMessage());
             return ResponseEntity.badRequest().body(standardException);
         }
 
+        log.error(REQUEST_ERROR, standardException.getMessage());
          return ResponseEntity.badRequest().body(standardException);
     }
 

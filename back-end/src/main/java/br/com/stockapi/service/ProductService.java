@@ -9,9 +9,9 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
 
-    void insertItem(ProductRequestDto productRequestDto);
+    void insertItem(ProductRequestDto productRequestDto) throws NotFoundException;
 
-    PageableResponseDto getAllProducts(Pageable pageable, StatusItemEnum statusItemEnum);
+    PageableResponseDto getAllProducts(Pageable pageable, StatusItemEnum statusItemEnum) throws NotFoundException;
 
     ProductResponseDto getProdutcByCode(String code) throws NotFoundException;
 
