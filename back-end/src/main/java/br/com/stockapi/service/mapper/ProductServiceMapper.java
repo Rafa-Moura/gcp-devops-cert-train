@@ -3,6 +3,7 @@ package br.com.stockapi.service.mapper;
 import br.com.stockapi.controller.dto.request.ProductRequestDto;
 import br.com.stockapi.controller.dto.response.PageableResponseDto;
 import br.com.stockapi.controller.dto.response.ProductResponseDto;
+import br.com.stockapi.controller.exception.BusinessException;
 import br.com.stockapi.infrastructure.enums.StatusItemEnum;
 import br.com.stockapi.infrastructure.model.Product;
 import br.com.stockapi.infrastructure.model.StatusProduct;
@@ -35,7 +36,7 @@ public class ProductServiceMapper {
         return lettersCode + numbersCode;
     }
 
-    public static PageableResponseDto convertPageProductToPageableResponseDto(Page<Product> products) {
+    public static PageableResponseDto convertPageProductToPageableResponseDto(Page<Product> products) throws BusinessException {
 
         return PageableResponseDto.builder()
                 .content(convertToProductResponseList(products.getContent()))
@@ -48,7 +49,7 @@ public class ProductServiceMapper {
                 .build();
     }
 
-    public static ProductResponseDto convertProductToDto(Product product) {
+    public static ProductResponseDto convertProductToDto(Product product) throws BusinessException {
         return ProductResponseDto.builder()
                 .product(product.getProduct())
                 .quantity(product.getQuantity())
@@ -58,7 +59,7 @@ public class ProductServiceMapper {
                 .build();
     }
 
-    private static List<ProductResponseDto> convertToProductResponseList(List<Product> products) {
+    private static List<ProductResponseDto> convertToProductResponseList(List<Product> products) throws BusinessException {
 
         List<ProductResponseDto> productResponseDtos = new ArrayList<>();
 

@@ -1,8 +1,10 @@
 package br.com.stockapi.controller;
 
+import br.com.stockapi.controller.dto.request.ProductOutputRequestDto;
 import br.com.stockapi.controller.dto.request.ProductRequestDto;
 import br.com.stockapi.controller.dto.response.PageableResponseDto;
 import br.com.stockapi.controller.dto.response.ProductResponseDto;
+import br.com.stockapi.controller.exception.BusinessException;
 import br.com.stockapi.controller.exception.InvalidRequestException;
 import br.com.stockapi.controller.exception.NotFoundException;
 import br.com.stockapi.controller.exception.SystemException;
@@ -16,7 +18,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
@@ -72,7 +73,7 @@ public class ProductController {
     @PageableAsQueryParam
     public ResponseEntity<PageableResponseDto> getAllProducts(@ParameterObject Pageable pageable,
                                                               @Parameter(name = "status", schema = @Schema(implementation = StatusItemEnum.class))
-                                                              @RequestParam(required = false, value = "status") StatusItemEnum status) throws NotFoundException {
+                                                              @RequestParam(required = false, value = "status") StatusItemEnum status) throws NotFoundException, BusinessException {
 
         log.info("Iniciando controller de listagem de produtos");
 
@@ -97,10 +98,10 @@ public class ProductController {
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = SystemException.class))}
             ),
     })
-    public ResponseEntity<ProductResponseDto> getProductByCode(@PathVariable String code) throws NotFoundException {
+    public ResponseEntity<ProductResponseDto> getProductByCode(@PathVariable String code) throws NotFoundException, BusinessException {
         log.info("Iniciando controller de visualizar detalhes de um produto. Código do produto: [{}]", code);
 
-        ProductResponseDto productResponseDto = service.getProdutcByCode(code);
+        ProductResponseDto productResponseDto = service.getProductByCode(code);
 
         log.info("Finalizando controller de visualizar detalhes de um produto. Código do produto: [{}]", code);
         return new ResponseEntity<>(productResponseDto, HttpStatus.OK);
@@ -123,10 +124,36 @@ public class ProductController {
             ),
     })
     public void deleteProduct(@PathVariable String code) throws NotFoundException {
-        log.info("Iniciando controller de visualizar detalhes de um produto. Código do produto: [{}]", code);
+        log.info("Iniciando controller para remover produto. Código do produto: [{}]", code);
 
         service.deleteProduct(code);
 
-        log.info("Finalizando controller de visualizar detalhes de um produto. Código do produto: [{}]", code);
+        log.info("Finalizando controller para remover produto. Código do produto: [{}]", code);
+    }
+
+    @PostMapping(value = "/output", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Realiza a retirada de um produto no banco de dados do estoque", method = "POST")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Saída de produto realizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro na solicitação, verifique os parâmetros informados e tente novamente.",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BusinessException.class))}
+            ),
+            @ApiResponse(responseCode = "404", description = "Erro na solicitação, verifique os parâmetros informados e tente novamente.",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = NotFoundException.class))}
+            ),
+            @ApiResponse(responseCode = "500", description = "Erro interno do sistema. Tente novamente em alguns instantes ou contate um administrador.",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = SystemException.class))}
+            ),
+    })
+    public ResponseEntity<ProductResponseDto> outputItem(@RequestBody @Valid ProductOutputRequestDto productOutputRequestDto) throws NotFoundException, BusinessException {
+
+        log.info("Iniciando controller de saída de produtos no estoque. Item: [{}]", productOutputRequestDto.getCode());
+
+        ProductResponseDto productResponseDto = service.outputProduct(productOutputRequestDto);
+
+        log.info("Finalizando controller de saída produtos no estoque. Item: [{}] Quantidade atualizada: [{}]",
+                productResponseDto.getProduct(), productResponseDto.getQuantity());
+
+        return new ResponseEntity<>(productResponseDto, HttpStatus.CREATED);
     }
 }

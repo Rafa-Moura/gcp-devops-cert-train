@@ -65,6 +65,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(standardException);
     }
 
+    @ExceptionHandler({BusinessException.class})
+    public ResponseEntity<StandardException> handleBusinessException(final BusinessException businessException) {
+
+        StandardException standardException = new StandardException(businessException.getReason(),
+                businessException.getMessage(), businessException.getCause());
+
+        standardException.setTimestamp(LocalDateTime.now());
+
+        log.error(businessException.getMessage(), businessException);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(standardException);
+    }
+
     @ExceptionHandler({HttpMessageNotReadableException.class})
     public ResponseEntity<StandardException> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
 

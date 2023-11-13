@@ -1,8 +1,10 @@
 package br.com.stockapi.infrastructure.enums;
 
+import br.com.stockapi.controller.exception.BusinessException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -16,12 +18,12 @@ public enum StatusItemEnum {
     private Long code;
     private String description;
 
-    public static String getDescriptionByEnumName(String statusEnum) {
+    public static String getDescriptionByEnumName(String statusEnum) throws BusinessException {
         return switch (statusEnum) {
             case "IN_STOCK" -> IN_STOCK.getDescription();
-            case "OUT" -> OUT.getDescription();
+            case "OUT_STOCK" -> OUT.getDescription();
             case "REMOVED_STOCK" -> REMOVED_STOCK.getDescription();
-            default -> throw new RuntimeException("Status invalido");
+            default -> throw new BusinessException(HttpStatus.BAD_REQUEST.toString(), "Status invalido");
         };
     }
 }
