@@ -11,6 +11,7 @@ import br.com.stockapi.infrastructure.model.Product;
 import br.com.stockapi.infrastructure.model.StatusProduct;
 import br.com.stockapi.infrastructure.repository.ProductRepository;
 import br.com.stockapi.service.ProductService;
+import br.com.stockapi.service.StatusProductService;
 import br.com.stockapi.service.mapper.ProductServiceMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
-    private final StatusProductServiceImpl statusItemService;
+    private final StatusProductService statusItemService;
 
     @Override
     public void insertItem(ProductRequestDto productRequestDto) throws NotFoundException {
@@ -49,9 +50,9 @@ public class ProductServiceImpl implements ProductService {
             log.info("O produto: [{}] informado possuí cadastro no estoque. realizada atualização de dados do produto.",
                     product.getProduct());
         }
-        productRepository.save(product);
 
-        log.info("Finalizando processo para inserir novo item no estoque: Item [{}] | Código gerado: [{}]", productRequestDto.getProduct(), product.getItemCode());
+        productRepository.save(product);
+        log.info("Finalizando processo para inserir novo item no estoque: Item [{}] | Código: [{}]", productRequestDto.getProduct(), product.getItemCode());
 
     }
 
@@ -74,6 +75,7 @@ public class ProductServiceImpl implements ProductService {
 
         log.info("Total de itens localizados no estoque: [{}] com o status: [{}]", products.getTotalElements(),
                 statusItemEnum.getDescription());
+
         return convertPageProductToPageableResponseDto(products);
     }
 
@@ -136,20 +138,21 @@ public class ProductServiceImpl implements ProductService {
 
             log.warn("Produto: [{}] após a venda ficará sem unidades disponíveis no estoque.", product.getProduct());
 
-            StatusProduct statusProduct = statusItemService.getStatusItem(StatusItemEnum.OUT);
+            StatusProduct statusProduct = statusItemService.getStatusItem(StatusItemEnum.OUT_STOCK);
             product.setStatusProduct(statusProduct);
         }
 
-        log.info("Finalizando camada de serviço para registrar saída do Produto: [{}] Quantidade de itens no estoque atual: [{}]",
-                product.getProduct(), product.getQuantity());
+        log.info("Finalizando camada de serviço para registrar saída do Produto: [{}] com o código [{}] Quantidade de itens no estoque atual: [{}]",
+                product.getProduct(), product.getItemCode(), product.getQuantity());
 
         productRepository.save(product);
         return convertProductToDto(product);
     }
 
     private Product getProduct(String code) throws NotFoundException {
-        return productRepository.findByItemCode(code).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.toString(),
-                "Ops, não localizamos um produto com o código informado. Verifique o código e tente novamente."
-        ));
+        return productRepository.findByItemCode(code).orElseThrow(() -> {
+            log.error("Ops, não localizamos um produto com o código informado. Verifique o código e tente novamente. Código informado: [{}]", code);
+            return new NotFoundException(HttpStatus.NOT_FOUND.toString(), "Ops, não localizamos um produto com o código informado. Verifique o código e tente novamente.");
+        });
     }
 }

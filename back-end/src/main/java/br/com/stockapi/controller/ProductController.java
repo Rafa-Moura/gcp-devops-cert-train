@@ -88,9 +88,6 @@ public class ProductController {
     @Operation(summary = "Retorna os dados do produto do banco de dados do estoque.", method = "GET")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro na solicitação, verifique os parâmetros informados e tente novamente.",
-                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = InvalidRequestException.class))}
-            ),
             @ApiResponse(responseCode = "404", description = "Recurso não encontrado com os valores fornecidos, verifique os parâmetros informados e tente novamente.",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = NotFoundException.class))}
             ),
@@ -113,9 +110,6 @@ public class ProductController {
     @Operation(summary = "Realiza a exclusão do produto do banco de dados do estoque.", method = "DELETE")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Produto removido com sucesso."),
-            @ApiResponse(responseCode = "400", description = "Erro na solicitação, verifique os parâmetros informados e tente novamente.",
-                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = InvalidRequestException.class))}
-            ),
             @ApiResponse(responseCode = "404", description = "Recurso não encontrado com os valores fornecidos, verifique os parâmetros informados e tente novamente.",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = NotFoundException.class))}
             ),

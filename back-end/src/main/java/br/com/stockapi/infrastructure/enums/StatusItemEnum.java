@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 public enum StatusItemEnum {
 
     IN_STOCK(1L, "Em estoque"),
-    OUT(2L, "Sem unidade no estoque"),
+    OUT_STOCK(2L, "Sem unidade no estoque"),
     REMOVED_STOCK(3L, "Item removido do estoque");
 
     private Long code;
@@ -21,7 +21,7 @@ public enum StatusItemEnum {
     public static String getDescriptionByEnumName(String statusEnum) throws BusinessException {
         return switch (statusEnum) {
             case "IN_STOCK" -> IN_STOCK.getDescription();
-            case "OUT_STOCK" -> OUT.getDescription();
+            case "OUT_STOCK" -> OUT_STOCK.getDescription();
             case "REMOVED_STOCK" -> REMOVED_STOCK.getDescription();
             default -> throw new BusinessException(HttpStatus.BAD_REQUEST.toString(), "Status invalido");
         };
