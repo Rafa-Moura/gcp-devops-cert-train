@@ -1,0 +1,31 @@
+steps:
+
+- name: "gcr.io/cloud-builders/mvn"
+  args: ["clean", "install"]
+  dir: "back-end"
+
+
+- name: "gcr.io/cloud-builders/docker"
+  dir: "back-end"
+  args: ['build', '--build-arg', 'JAR_FILE=target/*.jar', '-t', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/${_REGISTRY}/${_IMAGE_NAME}:$BUILD_ID', '.']
+  
+# Push the container image to Container Registry
+- name: "gcr.io/cloud-builders/docker"
+  args: ['push', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/${_REGISTRY}/${_IMAGE_NAME}:$BUILD_ID']
+
+# Deploy container image to Cloud Run
+- name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+  entrypoint: gcloud
+  dir: "back-end"
+  args: ['run', 'deploy', 'estoque-api', '--image', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/${_REGISTRY}/${_IMAGE_NAME}:$BUILD_ID', '--region', 'us-central1']
+
+
+## Deploy application to App Engine  
+# - name: "gcr.io/cloud-builders/gcloud"
+#   args: ["app", "deploy", "back-end/app.yaml"]
+images: ['us-central1-docker.pkg.dev/${_PROJECT_ID}/${_REGISTRY}/${_IMAGE_NAME}:$BUILD_ID']
+
+substitutions:
+  _PROJECT_ID: gcp-devops-cert-train
+  _REGISTRY: apps-registry
+  _IMAGE_NAME: estoque-api
