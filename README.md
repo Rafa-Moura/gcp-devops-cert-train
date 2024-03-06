@@ -11,7 +11,7 @@ A api consiste em um micro serviço rest que disponibiliza metódos para gestão
 1 - Primeiro você deve clonar este projeto em sua máquina local [https://github.com/Rafa-Moura/gcp-devops-cert-train.git](https://github.com/Rafa-Moura/gcp-devops-cert-train)
 
 2 - O próximo passo irá depender de como pretende executar o projeto
- - Executando via terminal: Caso queira apenas executar o projeto sem utilizar uma IDE ou editor de código para visualizar o código fonte, abra o terminal de sua preferência na pasta back-end existente dentro do clone do projeto
+ - Executando via terminal: Caso queira apenas executar o projeto sem utilizar uma IDE ou editor de código para visualizar o código fonte, você precisará ter o maven instalado em sua máquina e aplicado como variável de ambiente. Abra o terminal de sua preferência na pasta back-end existente dentro do clone do projeto
 e digite ./mvnw springboot:run. Esse comando irá inicializar o projeto.
  - Executando via IDE ou editor de texto: Abra o projeto em seu editor ou IDE de sua preferência, ajuste sua JDK (no projeto foi utilizada a JDK 17), realize o download das depências do projeto. Caso o download das dependências
    não ocorra de maneira automática, você deverá utilizar o recurso disponível no seu editor/IDE ou utilizar o comando mvn dependency:copy-dependencies no terminal dentro da pasta back-end do projeto que contém o arquivo pom.xml.
